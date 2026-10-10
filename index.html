@@ -289,86 +289,127 @@ function resetPedido() {
             setTimeout(() => { window.location.href = "https://www.google.com"; }, 100);
         }
 
-        function renderCategories() {
-            categoriesListContainer.innerHTML = '';
-            menuData.forEach(cat => {
-                const card = document.createElement('div');
-                card.onclick = () => openCategory(cat.id);
-                card.className = "cursor-pointer transition transform active:scale-[0.98]";
-                card.innerHTML = `
-                    <div class="relative h-44 rounded-xl overflow-hidden shadow-xs flex items-end p-5 transition bg-white">
-                        <img src="${cat.image}" alt="${cat.title}" class="absolute inset-0 w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent"></div>
-                        <div class="relative z-10 w-full flex justify-between items-end">
-                            <div>
-                                <h3 class="text-2xl font-extrabold text-white drop-shadow-md tracking-tight">${cat.title}</h3>
-                                <p class="text-xs text-slate-200 mt-0.5 line-clamp-1">${cat.description}</p>
-                            </div>
-                            <div class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs">
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </div>
+function renderCategories() {
+    const container = document.getElementById('categories-list');
+                      
+    if (!container) {
+        console.error("No se encontró el contenedor del menú en el DOM.");
+        return;
+    }
+
+    if (!menuData || menuData.length === 0) {
+        container.innerHTML = `<div class="py-12 text-center text-slate-400 text-xs font-medium">No hay datos en el menú.</div>`;
+        return;
+    }
+
+    let html = '';
+
+    menuData.forEach(categoria => {
+        const catId = categoria.id;
+        const nombreCat = categoria.title || categoria.nombre || "Menú";
+        const items = categoria.items || categoria.platos || [];
+
+        html += `
+        <div class="bg-white border border-slate-200/80 rounded-none p-4 shadow-xs active:scale-[0.99] transition-all cursor-pointer flex items-center justify-between" onclick="openCategory('${catId}')">
+            <div>
+                <h2 class="text-sm font-extrabold text-slate-900 tracking-tight">${nombreCat}</h2>
+                <span class="text-[11px] text-slate-500 font-medium mt-0.5 block">${items.length} platos disponibles</span>
+            </div>
+            <div class="w-8 h-8 rounded-none bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </div>
+        </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function openCategory(catId) {
+    const category = menuData.find(c => c.id === catId);
+    if (!category) return;
+
+    if (currentCategoryId !== catId) {
+        detailCategoryTitle.textContent = category.title || category.nombre;
+        itemsListContainer.innerHTML = '';
+
+        const items = category.items || category.platos || [];
+
+        items.forEach(item => {
+            // Evaluamos de forma segura la cantidad seleccionada en el estado
+            const sel = selectedItems[item.id];
+            const qty = sel ? sel.quantity : 0;
+            const isSelected = qty > 0;
+            
+            const formattedPrice = item.priceRaw 
+                ? '$' + Number(item.priceRaw).toLocaleString('es-CO') 
+                : (item.price || '$0');
+
+            const itemCard = document.createElement('div');
+            itemCard.id = `item-card-${item.id}`;
+            // Mantenemos la estructura limpia y sin esquinas redondeadas
+            itemCard.className = `bg-white border border-slate-200/80 rounded-none p-3 flex items-center gap-3 transition-all ${isSelected ? 'ring-1 ring-emerald-500/40 bg-emerald-50/10' : ''}`;
+            
+            itemCard.innerHTML = `
+                <!-- Imagen Miniatura -->
+                ${item.image ? `
+                    <div class="w-16 h-16 rounded-none overflow-hidden bg-slate-100 flex-shrink-0 cursor-pointer relative border border-slate-100" onclick="openLightbox(${item.id}, '${catId}')">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
+                    </div>
+                ` : ''}
+
+                <!-- Información del Plato -->
+                <div class="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <h3 class="text-xs font-semibold text-slate-900 leading-snug cursor-pointer truncate" onclick="openLightbox(${item.id}, '${catId}')">${item.title}</h3>
+                            <span class="text-xs font-bold text-slate-900 flex-shrink-0">${formattedPrice}</span>
+                        </div>
+                        
+                        ${item.description ? `
+                            <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-tight cursor-pointer" onclick="openLightbox(${item.id}, '${catId}')">
+                                ${item.description}
+                            </p>
+                        ` : ''}
+                    </div>
+
+                    <!-- Control de cantidad dinámico y funcional -->
+                    <div class="mt-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2" id="controls-container-${item.id}">
+                            ${qty > 0 ? `
+                                <div class="inline-flex items-center border border-slate-200 rounded-none bg-slate-50 text-xs">
+                                    <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', -1)" class="px-2.5 py-1 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">-</button>
+                                    <span id="card-qty-${item.id}" class="px-2.5 font-semibold text-slate-900 text-xs">${qty}</span>
+                                    <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', 1)" class="px-2.5 py-1 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">+</button>
+                                </div>
+                            ` : `
+                                <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', 1)" class="text-[11px] font-semibold text-slate-800 bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-none hover:bg-slate-200 active:scale-95 transition-all cursor-pointer">
+                                    + Agregar
+                                </button>
+                            `}
                         </div>
                     </div>
-                `;
-                categoriesListContainer.appendChild(card);
-            });
-        }
+                </div>
+            `;
+            itemsListContainer.appendChild(itemCard);
+        });
 
-        function openCategory(catId) {
-            const category = menuData.find(c => c.id === catId);
-            if (!category) return;
+        currentCategoryId = catId;
+        screenItems.scrollTop = categoryScrollPositions[catId] || 0;
+    } else {
+        // Si ya está abierta, actualizamos los contadores visuales por si cambiaron
+        category.items.forEach(item => {
+            updateItemCardUI(item.id);
+        });
+        screenItems.scrollTop = categoryScrollPositions[catId] || 0;
+    }
 
-            if (currentCategoryId !== catId) {
-                detailCategoryTitle.textContent = category.title;
-                itemsListContainer.innerHTML = '';
+    screenHome.classList.remove('screen-active', 'screen-left');
+    screenHome.classList.add('screen-left');
+    screenItems.classList.remove('screen-right', 'screen-active');
+    screenItems.classList.add('screen-active');
+}
 
-                category.items.forEach(item => {
-                    const sel = selectedItems[item.id];
-                    const qty = sel ? sel.quantity : 0;
-                    const isSelected = qty > 0;
-
-                    const itemCard = document.createElement('div');
-                    itemCard.id = `item-card-${item.id}`;
-                    itemCard.className = `bg-white rounded-xl p-3 flex flex-col gap-2.5 transition-all ${isSelected ? 'shadow-md ring-1 ring-emerald-500/40 bg-emerald-50/10' : 'shadow-xs'}`;
-                    
-                    itemCard.innerHTML = `
-                        <div class="flex gap-3.5 items-center">
-                            <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 cursor-pointer relative shadow-xs" onclick="openLightbox(${item.id}, '${catId}')">
-                                <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex-1 flex flex-col justify-between py-0.5">
-                                <div>
-                                    <h3 class="text-sm font-extrabold text-slate-900 leading-snug tracking-tight">${item.title}</h3>
-                                    <div class="text-[11px] text-slate-600 leading-relaxed mt-1 cursor-pointer" onclick="openLightbox(${item.id}, '${catId}')">
-                                        <p class="line-clamp-2">${item.description}</p>
-                                        <span class="text-blue-600 font-bold underline inline-block mt-0.5 text-[10px]">más</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-end gap-4 pt-1">
-                            <div class="flex items-center gap-3">
-                                <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', -1)" class="w-7 h-7 flex items-center justify-center text-slate-800 font-extrabold cursor-pointer text-sm">−</button>
-                                <span id="card-qty-${item.id}" class="text-xs font-extrabold text-slate-900">${qty}</span>
-                                <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', 1)" class="w-7 h-7 flex items-center justify-center text-slate-800 font-extrabold cursor-pointer text-sm">+</button>
-                            </div>
-                            <div class="text-sm font-extrabold text-emerald-700">${item.price}</div>
-                        </div>
-                    `;
-                    itemsListContainer.appendChild(itemCard);
-                });
-
-                currentCategoryId = catId;
-                screenItems.scrollTop = categoryScrollPositions[catId] || 0;
-            } else {
-                screenItems.scrollTop = categoryScrollPositions[catId] || 0;
-            }
-
-            screenHome.classList.remove('screen-active', 'screen-left');
-            screenHome.classList.add('screen-left');
-            screenItems.classList.remove('screen-right', 'screen-active');
-            screenItems.classList.add('screen-active');
-        }
 
         function changeQuantity(itemId, catId, delta) {
             const category = menuData.find(c => c.id === catId);
@@ -408,18 +449,50 @@ function resetPedido() {
             }
         }
 
-        function updateItemCardUI(itemId) {
-            const card = document.getElementById(`item-card-${itemId}`);
-            const qtySpan = document.getElementById(`card-qty-${itemId}`);
-            const sel = selectedItems[itemId];
-            const qty = sel ? sel.quantity : 0;
-            const isSelected = qty > 0;
+function updateItemCardUI(itemId) {
+    const card = document.getElementById(`item-card-${itemId}`);
+    const sel = selectedItems[itemId];
+    const qty = sel ? sel.quantity : 0;
+    const isSelected = qty > 0;
 
-            if (qtySpan) qtySpan.textContent = qty;
-            if (card) {
-                card.className = `bg-white rounded-xl p-3 flex flex-col gap-2.5 transition-all ${isSelected ? 'shadow-md ring-1 ring-emerald-500/40 bg-emerald-50/10' : 'shadow-xs'}`;
+    if (card) {
+        card.className = `bg-white border border-slate-200/80 rounded-none p-3 flex items-center gap-3 transition-all ${isSelected ? 'ring-1 ring-emerald-500/40 bg-emerald-50/10' : ''}`;
+    }
+
+    // Buscamos el contenedor de controles dentro de la tarjeta para actualizarlo de forma dinámica
+    // Nota: necesitamos ubicar en qué categoría está el ítem para pasar el catId al botón
+    let targetCatId = currentCategoryId;
+    if (!targetCatId && menuData) {
+        for (const cat of menuData) {
+            const found = (cat.items || cat.platos || []).find(i => i.id === itemId);
+            if (found) {
+                targetCatId = cat.id;
+                break;
             }
         }
+    }
+
+    const controlsContainer = document.querySelector(`[id^="item-card-${itemId}"] .flex.items-center.justify-between .flex.items-center.gap-2`) || 
+                              document.getElementById(`controls-container-${itemId}`);
+
+    if (controlsContainer && targetCatId) {
+        if (qty > 0) {
+            controlsContainer.innerHTML = `
+                <div class="inline-flex items-center border border-slate-200 rounded-none bg-slate-50 text-xs">
+                    <button onclick="event.stopPropagation(); changeQuantity(${itemId}, '${targetCatId}', -1)" class="px-2.5 py-1 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">-</button>
+                    <span id="card-qty-${itemId}" class="px-2.5 font-semibold text-slate-900 text-xs">${qty}</span>
+                    <button onclick="event.stopPropagation(); changeQuantity(${itemId}, '${targetCatId}', 1)" class="px-2.5 py-1 text-slate-700 hover:bg-slate-200 font-bold cursor-pointer">+</button>
+                </div>
+            `;
+        } else {
+            controlsContainer.innerHTML = `
+                <button onclick="event.stopPropagation(); changeQuantity(${itemId}, '${targetCatId}', 1)" class="text-[11px] font-semibold text-slate-800 bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-none hover:bg-slate-200 active:scale-95 transition-all cursor-pointer">
+                    + Agregar
+                </button>
+            `;
+        }
+    }
+}
 
 function updateComandaUI() {
     const keys = Object.keys(selectedItems);
