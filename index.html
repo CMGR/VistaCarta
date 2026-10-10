@@ -14,21 +14,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        .screen {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; background-color: #f8fafc;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-            will-change: transform, opacity; box-sizing: border-box; overflow-y: auto;
-        }
-        .screen-right { transform: translate3d(100%, 0, 0); pointer-events: none; opacity: 0.9; }
-        .screen-active { transform: translate3d(0, 0, 0); pointer-events: auto; opacity: 1; z-index: 10; }
-        .screen-left { transform: translate3d(-30%, 0, 0); pointer-events: none; opacity: 0.5; }
-        #app-container { position: relative; width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; overflow: hidden; box-shadow: 0 0 40px rgba(0, 0, 0, 0.1); }
-        #comanda-panel { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
-        #comanda-panel.open { transform: translateY(0); }
-        #comanda-backdrop { transition: opacity 0.3s ease; }
-    </style>
+    .screen {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column; background-color: #f8fafc;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+        will-change: transform, opacity; box-sizing: border-box; overflow-y: auto;
+    }
+    .screen-right { transform: translate3d(100%, 0, 0); pointer-events: none; opacity: 0.9; }
+    .screen-active { transform: translate3d(0, 0, 0); pointer-events: auto; opacity: 1; z-index: 10; }
+    .screen-left { transform: translate3d(-30%, 0, 0); pointer-events: none; opacity: 0.5; }
+    
+    /* MODIFICACIÓN: Cambiar 100vh por 100dvh para adaptarse al viewport real de Android/iOS */
+    #app-container { position: relative; width: 100%; max-width: 480px; margin: 0 auto; height: 100dvh; min-height: 100dvh; overflow: hidden; box-shadow: 0 0 40px rgba(0, 0, 0, 0.1); }
+    
+    #comanda-panel { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
+    #comanda-panel.open { transform: translateY(0); }
+    #comanda-backdrop { transition: opacity 0.3s ease; }
+</style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
 
@@ -71,7 +74,7 @@
 
         <div id="comanda-backdrop" onclick="toggleComanda()" class="absolute inset-0 z-40 bg-slate-900/30 backdrop-blur-sm hidden pointer-events-auto"></div>
 
-        <div id="comanda-trigger-container" class="absolute bottom-4 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none">
+       <div id="comanda-trigger-container" class="absolute bottom-6 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none">
             <button onclick="toggleComanda()" id="comanda-btn" class="pointer-events-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 transition transform active:scale-95">
                 <div id="comanda-counter" class="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hidden">0</div>
                 <span id="comanda-btn-text">Pedido vacío</span>
@@ -227,16 +230,28 @@
             }
         }
 
-        function resetPedido() {
-            if (Object.keys(selectedItems).length > 0 && !confirm('¿Deseas borrar los elementos actuales y comenzar un nuevo pedido?')) return;
-            localStorage.removeItem('vistacarta_pedido');
-            selectedItems = {};
-            if (currentCategoryId) openCategory(currentCategoryId);
-            updateComandaUI();
-            comandaPanel.classList.remove('open');
-            comandaBackdrop.classList.add('hidden');
-            document.getElementById('final-summary-modal').classList.add('hidden');
-        }
+function resetPedido() {
+    if (Object.keys(selectedItems).length > 0 && !confirm('¿Deseas borrar los elementos actuales y comenzar un nuevo pedido?')) return;
+    localStorage.removeItem('vistacarta_pedido');
+    selectedItems = {};
+    
+    // Actualizamos la UI de la comanda para dejarla vacía
+    updateComandaUI();
+    
+    // Cerramos paneles y modales abiertos
+    comandaPanel.classList.remove('open');
+    comandaBackdrop.classList.add('hidden');
+    document.getElementById('final-summary-modal').classList.add('hidden');
+    
+    // Forzamos el regreso a la pantalla principal de categorías
+    // Esto asegura que al volver a entrar a cualquier categoría, los contadores empiecen en 0
+    if (typeof goBackToHome === 'function' && screenItems.classList.contains('screen-active')) {
+        goBackToHome();
+    }
+    
+    // Reseteamos el scroll de la página principal
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
         function exitApp() {
             window.close();
