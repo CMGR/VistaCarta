@@ -181,9 +181,18 @@
         const comandaBtnText = document.getElementById('comanda-btn-text');
         const comandaTotal = document.getElementById('comanda-total');
 
+        // Variable para alternar fácilmente la fuente del menú
+        const MENU_FILE = '2menu.json'; // Cambia a 'menu.json' cuando quieras volver
+
         async function initApp() {
             try {
-                const response = await fetch('./menu.json');
+                
+                // ANTES:
+                // const res = await fetch('menu.json'); 
+                // (o fetch('menu.json').then(...))
+
+                // AHURA:
+                const response = await fetch(MENU_FILE);                
                 if (!response.ok) throw new Error('Error al conectar con menu.json');
                 const data = await response.json();
                 

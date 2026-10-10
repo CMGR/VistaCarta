@@ -1,8 +1,10 @@
-const CACHE_NAME = 'vistacarta-offline-v3';
+const CACHE_NAME = 'vistacarta-offline-v4';
 const assetsToCache = [
     './',
     './index.html',
+    './manifest.json',
     './menu.json',
+    './2menu.json', // <- Asegura que se guarde en caché
     'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];

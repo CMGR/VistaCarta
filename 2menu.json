@@ -74,7 +74,7 @@
         { "id": 37, "title": "Wrap de Pollo y Vegetales", "priceRaw": 19000, "price": "$19.000", "description": "Tortilla de trigo rellena de tiras de pollo asado, lechuga y aderezo especial.", "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80" },
         { "id": 38, "title": "Termo de Café Americano 1 Litro", "priceRaw": 18000, "price": "$18.000", "description": "Café caliente listo para reuniones o trabajo en termo desechable seguro.", "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80" },
         { "id": 39, "title": "Ensalada César con Pollo para Llevar", "priceRaw": 21000, "price": "$21.000", "description": "Pechuga a la plancha, lechuga romana, crutones y aderezo césar aparte listo.", "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80" },
-        { "id": 40, "title": "Postre Napoleón en Vasito", "priceRaw": 9000, price: "$9.000", "description": "Capas de galleta ducales, crema de leche condensada y chocolate espolvoreado.", "image": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80" }
+        { "id": 40, "title": "Postre Napoleón en Vasito", "priceRaw": 9000, "price": "$9.000", "description": "Capas de galleta ducales, crema de leche condensada y chocolate espolvoreado.", "image": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80" }
       ]
     }
   ]
