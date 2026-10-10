@@ -1,0 +1,81 @@
+{
+  "restaurante": {
+    "nombre": "La Garosa",
+    "ubicacion": "Villa Campestre",
+    "logo": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=200&q=80"
+  },
+  "categorias": [
+    {
+      "id": "fritos",
+      "title": "Fritos",
+      "description": "Crujientes fritos tradicionales recién hechos.",
+      "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80",
+      "items": [
+        { "id": 1, "title": "Empanada de Carne", "priceRaw": 4000, "price": "$4.000", "description": "Empanada de maíz crocante rellena de carne desmechada sazonada con finas hierbas y acompañantes caseros.", "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80" },
+        { "id": 2, "title": "Empanada de Pollo", "priceRaw": 4000, "price": "$4.000", "description": "Masa de maíz frita rellena de pollo jugoso al guiso tradicional de la casa con especias naturales.", "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80" },
+        { "id": 3, "title": "Arepa de Huevo Clásica", "priceRaw": 5500, "price": "$5.500", "description": "Arepa de maíz amarillo frita con huevo entero en su interior, crujiente, dorada y sabrosa.", "image": "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80" },
+        { "id": 4, "title": "Arepa de Huevo con Carne", "priceRaw": 7500, "price": "$7.500", "description": "Arepa frita rellena de huevo fresco y deliciosa carne picada sazonada con sabor costeño.", "image": "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80" },
+        { "id": 5, "title": "Carimañola de Queso", "priceRaw": 4500, "price": "$4.500", "description": "Masa de yuca crujiente por fuera rellena de abundante queso costeño derretido al calor.", "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80" },
+        { "id": 6, "title": "Carimañola de Carne", "priceRaw": 5000, "price": "$5.000", "description": "Masa de yuca frita rellena de carne molida sazonada con toque especial de la casa.", "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80" },
+        { "id": 7, "title": "Kibbeh Criollo", "priceRaw": 6000, "price": "$6.000", "description": "Masa de trigo burgol y carne molida con especias orientales tradicionales y toque secreto.", "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80" },
+        { "id": 8, "title": "Dedito de Queso", "priceRaw": 3500, "price": "$3.500", "description": "Dedo de masa suave hojaldrada relleno de queso salado estirable de primera calidad.", "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80" },
+        { "id": 9, "title": "Dedito de Bocadillo y Queso", "priceRaw": 4000, "price": "$4.000", "description": "Combinación dulce y salada perfecta de guayaba con queso derretido en hojaldre crujiente.", "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80" },
+        { "id": 10, "title": "Papa Rellena de Carne", "priceRaw": 6500, "price": "$6.500", "description": "Bola de puré de papa rebozada y frita con relleno de carne y trocitos de huevo duro.", "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80" }
+      ]
+    },
+    {
+      "id": "desayunos",
+      "title": "Desayunos",
+      "description": "Opciones nutritivas y tradicionales para iniciar el día.",
+      "image": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80",
+      "items": [
+        { "id": 11, "title": "Desayuno Criollo", "priceRaw": 18000, "price": "$18.000", "description": "Huevos pericos, arepa con queso, carne desmechada y café caliente humeante recién hecho.", "image": "https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80" },
+        { "id": 12, "title": "Huevos al Gusto con Arepa", "priceRaw": 12000, "price": "$12.000", "description": "Revueltos, fritos o pericos acompañados de arepa blanca con mantequilla suave.", "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80" },
+        { "id": 13, "title": "Calentado Paisa", "priceRaw": 20000, "price": "$20.000", "description": "Arroz con frijol, chicharrón crujiente, huevo frito y tajada de maduro apetitosa.", "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" },
+        { "id": 14, "title": "Omelette de Queso y Jamón", "priceRaw": 14000, "price": "$14.000", "description": "Huevos batidos rellenos de abundante queso mozarella y jamón artesanal de pierna.", "image": "https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=800&q=80" },
+        { "id": 15, "title": "Sandwich de Queso y Huevos", "priceRaw": 10000, "price": "$10.000", "description": "Pan tostado con huevo frito, queso derretido y toque de mantequilla especial.", "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80" },
+        { "id": 16, "title": "Pancakes con Miel y Frutas", "priceRaw": 15000, "price": "$15.000", "description": "Torre de 3 pancakes esponjosos servidos con fresas, banano y miel de arce pura.", "image": "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=800&q=80" },
+        { "id": 17, "title": "Waffles Dorados con Helado", "priceRaw": 16500, "price": "$16.500", "description": "Waffles crujientes por fuera con sirope de arce y bola de helado de vainilla suave.", "image": "https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=800&q=80" },
+        { "id": 18, "title": "Bowl de Yogur y Granola", "priceRaw": 13000, "price": "$13.000", "description": "Yogur griego natural con granola crocante, miel pura y frutos rojos seleccionados.", "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=800&q=80" },
+        { "id": 19, "title": "Toast de Aguacate y Huevo Escalfado", "priceRaw": 17000, "price": "$17.000", "description": "Pan de masa madre tostado con aguacate triturado y huevo escalfado perfectamente.", "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80" },
+        { "id": 20, "title": "Tamal Tradicional", "priceRaw": 16000, "price": "$16.000", "description": "Masa de maíz sazonada con pollo, cerdo, papa y arveja envuelta en hoja de plátano.", "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" }
+      ]
+    },
+    {
+      "id": "bebidas",
+      "title": "Bebidas",
+      "description": "Refrescantes jugos, limonadas y bebidas calientes.",
+      "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+      "items": [
+        { "id": 21, "title": "Limonada Cerezada", "priceRaw": 9000, "price": "$9.000", "description": "Refrescante limonada natural batida con cerezas dulce marrasquino heladas.", "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&q=80" },
+        { "id": 22, "title": "Limonada de Coco", "priceRaw": 11000, "price": "$11.000", "description": "Limonada frapeada con crema de coco natural y trocitos de hielo refrescantes.", "image": "https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=800&q=80" },
+        { "id": 23, "title": "Jugo Natural de Maracuyá", "priceRaw": 7500, "price": "$7.500", "description": "Preparado con pulpa fresca en agua o leche bien frío para calmar la sed.", "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=800&q=80" },
+        { "id": 24, "title": "Jugo Natural de Mango", "priceRaw": 7500, "price": "$7.500", "description": "Jugo espeso de mango dulce en leche o agua recién preparado.", "image": "https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=800&q=80" },
+        { "id": 25, "title": "Jugo de Lulo Frío", "priceRaw": 8000, "price": "$8.000", "description": "Jugo de lulo ácido típico con bastante hielo y toque de azúcar al gusto.", "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=800&q=80" },
+        { "id": 26, "title": "Café Espresso Americano", "priceRaw": 4500, "price": "$4.500", "description": "Extracción de café 100% arábigo colombiano recién pasado e intenso.", "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80" },
+        { "id": 27, "title": "Cappuccino con Espuma", "priceRaw": 6500, "price": "$6.500", "description": "Café expreso con leche vaporizada y capa fina de cacao en polvo aromático.", "image": "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=800&q=80" },
+        { "id": 28, "title": "Chocolate Caliente con Queso", "priceRaw": 8500, "price": "$8.500", "description": "Taza de chocolate espumoso acompañado de queso campesino fresco derretido.", "image": "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=800&q=80" },
+        { "id": 29, "title": "Gaseosa Personal 400ml", "priceRaw": 4500, "price": "$4.500", "description": "Variedad de sabores fríos en botella personal muy refrescante.", "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80" },
+        { "id": 30, "title": "Agua Embotellada 500ml", "priceRaw": 3500, "price": "$3.500", "description": "Agua purificada fría con o sin gas de manantial puro.", "image": "https://images.unsplash.com/photo-1560023907-5f339617ea30?auto=format&fit=crop&w=800&q=80" }
+      ]
+    },
+    {
+      "id": "para-llevar",
+      "title": "Para llevar",
+      "description": "Empacados especiales listos para disfrutar en casa o la oficina.",
+      "image": "https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=800&q=80",
+      "items": [
+        { "id": 31, "title": "Combo Fritos x 12 Unidades", "priceRaw": 42000, "price": "$42.000", "description": "Surtido de empanadas, deditos y carimañolas con ají casero picante.", "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80" },
+        { "id": 32, "title": "Caja de Deditos congelados x 20", "priceRaw": 35000, "price": "$35.000", "description": "Deditos precocidos listos para hornear o freír en casa en minutos.", "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80" },
+        { "id": 33, "title": "Paquete Empanadas congeladas x 15", "priceRaw": 32000, "price": "$32.000", "description": "Empanadas de carne y pollo listas para freír cuando quieras.", "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80" },
+        { "id": 34, "title": "Sandwich Club Personal para Llevar", "priceRaw": 22000, "price": "$22.000", "description": "Triple capa de pollo, tocineta, queso, lechuga y papas fritas crujientes.", "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80" },
+        { "id": 35, "title": "Hamburguesa Artesanal + Papas", "priceRaw": 26000, "price": "$26.000", "description": "150g de carne molida, queso cheddar, cebolla caramelizada y papas doradas.", "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" },
+        { "id": 36, "title": "Salchipapa Especial Box", "priceRaw": 20000, "price": "$20.000", "description": "Cama de papas con salchicha manguera, queso costeño y salsas de la casa.", "image": "https://images.unsplash.com/photo-1585109649139-366815a0d713?auto=format&fit=crop&w=800&q=80" },
+        { "id": 37, "title": "Wrap de Pollo y Vegetales", "priceRaw": 19000, "price": "$19.000", "description": "Tortilla de trigo rellena de tiras de pollo asado, lechuga y aderezo especial.", "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80" },
+        { "id": 38, "title": "Termo de Café Americano 1 Litro", "priceRaw": 18000, "price": "$18.000", "description": "Café caliente listo para reuniones o trabajo en termo desechable seguro.", "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80" },
+        { "id": 39, "title": "Ensalada César con Pollo para Llevar", "priceRaw": 21000, "price": "$21.000", "description": "Pechuga a la plancha, lechuga romana, crutones y aderezo césar aparte listo.", "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80" },
+        { "id": 40, "title": "Postre Napoleón en Vasito", "priceRaw": 9000, price: "$9.000", "description": "Capas de galleta ducales, crema de leche condensada y chocolate espolvoreado.", "image": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=800&q=80" }
+      ]
+    }
+  ]
+}

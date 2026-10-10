@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VistaCarta - Menú Digital</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; background-color: #f8fafc;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            will-change: transform, opacity; box-sizing: border-box; overflow-y: auto;
+        }
+        .screen-right { transform: translate3d(100%, 0, 0); pointer-events: none; opacity: 0.9; }
+        .screen-active { transform: translate3d(0, 0, 0); pointer-events: auto; opacity: 1; z-index: 10; }
+        .screen-left { transform: translate3d(-30%, 0, 0); pointer-events: none; opacity: 0.5; }
+        #app-container { position: relative; width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; overflow: hidden; box-shadow: 0 0 40px rgba(0, 0, 0, 0.1); }
+        #comanda-panel { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
+        #comanda-panel.open { transform: translateY(0); }
+        #comanda-backdrop { transition: opacity 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans antialiased">
+
+    <div id="app-container">
+        <div id="screen-home" class="screen screen-active">
+            <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-xs">
+                <div class="flex flex-col gap-1.5 items-start">
+                    <div>
+                        <h1 class="text-base font-extrabold text-slate-900 tracking-tight leading-none">VistaCarta</h1>
+                        <p class="text-[10px] text-slate-500 font-medium mt-0.5"><i class="fa-solid fa-utensils text-blue-600 mr-1"></i>Menú Digital</p>
+                    </div>
+                    <button onclick="exitApp()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] px-2.5 py-1 rounded-md border border-slate-200 flex items-center gap-1.5 shadow-xs cursor-pointer transition font-medium">
+                        <i class="fa-solid fa-arrow-right-from-bracket text-rose-500 text-[10px]"></i> Salir
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="text-right">
+                        <span id="header-restaurant-name" class="text-xs font-bold text-slate-800 block leading-tight">Cargando...</span>
+                        <span id="header-restaurant-location" class="text-[10px] text-slate-400 block">...</span>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl border border-slate-200 overflow-hidden shadow-xs bg-white flex-shrink-0 p-0.5">
+                        <img id="header-restaurant-logo" src="" alt="Logo" class="w-full h-full object-cover rounded-lg">
+                    </div>
+                </div>
+            </header>
+            <main class="p-4 flex-1 flex flex-col gap-4 pb-24" id="categories-list">
+                <div class="py-12 text-center text-slate-400 text-xs font-medium">Cargando menú digital...</div>
+            </main>
+        </div>
+
+        <div id="screen-items" class="screen screen-right">
+            <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 px-4 py-3 flex items-center justify-between shadow-xs">
+                <button onclick="goBackToHome()" class="text-blue-600 hover:text-blue-700 w-8 h-8 flex items-center justify-center cursor-pointer text-sm">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <h2 id="detail-category-title" class="text-xl font-extrabold text-slate-900 tracking-tight text-right flex-1 truncate ml-2"></h2>
+            </header>
+            <main class="p-4 flex-1 flex flex-col gap-4 pb-24" id="items-list"></main>
+        </div>
+
+        <div id="comanda-backdrop" onclick="toggleComanda()" class="absolute inset-0 z-40 bg-slate-900/30 backdrop-blur-sm hidden pointer-events-auto"></div>
+
+        <div id="comanda-trigger-container" class="absolute bottom-4 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none">
+            <button onclick="toggleComanda()" id="comanda-btn" class="pointer-events-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 transition transform active:scale-95">
+                <div id="comanda-counter" class="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hidden">0</div>
+                <span id="comanda-btn-text">Pedido vacío</span>
+            </button>
+        </div>
+
+        <div id="comanda-panel" class="absolute bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 rounded-t-2xl shadow-2xl max-h-[50vh] flex flex-col">
+            <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <h3 class="text-xs font-extrabold text-slate-800 tracking-wider">SU PEDIDO</h3>
+                    <button onclick="resetPedido()" class="text-[10px] text-rose-600 hover:text-rose-700 font-bold bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md cursor-pointer transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i>Limpiar
+                    </button>
+                </div>
+                <button onclick="toggleComanda()" class="text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer text-sm font-bold">✕</button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-2.5" id="comanda-items-list"></div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">SU PAGO</span>
+                    <span class="text-base font-extrabold text-slate-900" id="comanda-total">$0</span>
+                </div>
+                <button onclick="openFinalSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-xs cursor-pointer transition">Ver PEDIDO</button>
+            </div>
+        </div>
+
+        <div id="lightbox-modal" class="absolute inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-3 hidden">
+            <div class="bg-white/95 backdrop-blur-lg border border-slate-200/80 rounded-2xl p-4 w-full max-w-sm shadow-2xl flex flex-col h-[92vh] max-h-[720px]">
+                <div class="flex justify-end pb-2 flex-shrink-0">
+                    <button onclick="closeLightbox()" class="text-slate-500 hover:text-slate-800 text-sm font-extrabold cursor-pointer w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
+                </div>
+                <div class="w-full h-[72vh] max-h-[420px] rounded-xl overflow-hidden shadow-xs mb-3 bg-slate-100 flex-shrink-0">
+                    <img id="lightbox-img" src="" alt="Plato" class="w-full h-full object-cover">
+                </div>
+                <div class="flex justify-between items-center mb-1.5 flex-shrink-0">
+                    <h3 id="lightbox-title" class="text-base font-extrabold text-slate-900 tracking-tight"></h3>
+                    <span id="lightbox-price" class="text-sm font-extrabold text-emerald-700"></span>
+                </div>
+                <p id="lightbox-desc" class="text-xs text-slate-600 leading-relaxed overflow-y-auto flex-1 py-1 pr-1"></p>
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between flex-shrink-0 mt-2">
+                    <span class="text-xs font-bold text-slate-700">Cantidad:</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="changeLightboxQuantity(-1)" class="w-8 h-8 flex items-center justify-center text-slate-800 font-extrabold cursor-pointer text-base">−</button>
+                        <span id="lightbox-qty" class="text-sm font-extrabold text-slate-900">0</span>
+                        <button onclick="changeLightboxQuantity(1)" class="w-8 h-8 flex items-center justify-center text-slate-800 font-extrabold cursor-pointer text-base">+</button>
+                    </div>
+                </div>
+                <button onclick="closeLightbox()" class="mt-2.5 w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2.5 rounded-lg shadow-xs transition cursor-pointer flex-shrink-0">Volver al Menú</button>
+            </div>
+        </div>
+
+        <div id="final-summary-modal" class="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden">
+            <div class="bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-5 w-full max-w-sm shadow-2xl flex flex-col max-h-[80vh]">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200/80 mb-3">
+                    <h3 class="text-xs font-extrabold text-slate-900 tracking-wider">PEDIDO CONFIRMADO</h3>
+                    <button onclick="closeFinalSummary()" class="text-slate-400 hover:text-slate-700 text-xs font-bold cursor-pointer">✕</button>
+                </div>
+                <div id="final-summary-list" class="overflow-y-auto flex-1 flex flex-col gap-2 py-1"></div>
+                <div class="pt-3 border-t border-slate-200/80 mt-3 flex justify-between items-center">
+                    <span class="text-xs font-extrabold text-slate-900">SU PAGO:</span>
+                    <span id="final-summary-total" class="text-base font-extrabold text-emerald-700">$0</span>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="resetPedido()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-3 rounded-lg border border-slate-200 cursor-pointer transition">Nuevo Pedido</button>
+                    <button onclick="closeFinalSummary()" class="w-1/2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-lg shadow-xs cursor-pointer transition">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Registro limpio del Service Worker externo
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('Service Worker registrado correctamente.'))
+                    .catch(err => console.log('Error al registrar Service Worker:', err));
+            });
+        }
+
+        // Bloqueo seguro de orientación (evita excepciones en desktop)
+        function lockOrientation() {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('portrait').catch(() => {});
+            }
+        }
+        window.addEventListener('load', lockOrientation);
+
+        let menuData = [];
+        let selectedItems = {};
+        const categoryScrollPositions = {};
+        let currentCategoryId = null;
+        let currentLightboxItemId = null;
+
+        const screenHome = document.getElementById('screen-home');
+        const screenItems = document.getElementById('screen-items');
+        const categoriesListContainer = document.getElementById('categories-list');
+        const itemsListContainer = document.getElementById('items-list');
+        const detailCategoryTitle = document.getElementById('detail-category-title');
+        const comandaPanel = document.getElementById('comanda-panel');
+        const comandaBackdrop = document.getElementById('comanda-backdrop');
+        const comandaItemsList = document.getElementById('comanda-items-list');
+        const comandaCounter = document.getElementById('comanda-counter');
+        const comandaBtnText = document.getElementById('comanda-btn-text');
+        const comandaTotal = document.getElementById('comanda-total');
+
+        async function initApp() {
+            try {
+                const response = await fetch('./menu.json');
+                if (!response.ok) throw new Error('Error al conectar con menu.json');
+                const data = await response.json();
+                
+                if (data.restaurante) {
+                    document.getElementById('header-restaurant-name').textContent = data.restaurante.nombre;
+                    document.getElementById('header-restaurant-location').textContent = data.restaurante.ubicacion;
+                    if (data.restaurante.logo) {
+                        document.getElementById('header-restaurant-logo').src = data.restaurante.logo;
+                    }
+                }
+
+                menuData = data.categorias || [];
+                
+                try {
+                    const savedData = localStorage.getItem('vistacarta_pedido');
+                    if (savedData) {
+                        const parsed = JSON.parse(savedData);
+                        const ahora = new Date().getTime();
+                        if ((ahora - parsed.timestamp) / (1000 * 60 * 60) > 4) {
+                            localStorage.removeItem('vistacarta_pedido');
+                            selectedItems = {};
+                        } else {
+                            selectedItems = parsed.pedido || {};
+                        }
+                    }
+                } catch (e) {
+                    console.log("Error recuperando pedido:", e);
+                }
+
+                renderCategories();
+                updateComandaUI();
+
+            } catch (error) {
+                console.log("No se pudo cargar el menú externo:", error);
+                categoriesListContainer.innerHTML = `<div class="py-12 text-center text-rose-500 text-xs font-bold">Error cargando el menú. Verifica que menu.json esté en la misma carpeta y sin errores de sintaxis.</div>`;
+            }
+        }
+
+        function savePedidoToLocalStorage() {
+            try {
+                localStorage.setItem('vistacarta_pedido', JSON.stringify({ timestamp: new Date().getTime(), pedido: selectedItems }));
+            } catch (e) {
+                console.log("Error guardando pedido:", e);
+            }
+        }
+
+        function resetPedido() {
+            if (Object.keys(selectedItems).length > 0 && !confirm('¿Deseas borrar los elementos actuales y comenzar un nuevo pedido?')) return;
+            localStorage.removeItem('vistacarta_pedido');
+            selectedItems = {};
+            if (currentCategoryId) openCategory(currentCategoryId);
+            updateComandaUI();
+            comandaPanel.classList.remove('open');
+            comandaBackdrop.classList.add('hidden');
+            document.getElementById('final-summary-modal').classList.add('hidden');
+        }
+
+        function exitApp() {
+            window.close();
+            setTimeout(() => { window.location.href = "https://www.google.com"; }, 100);
+        }
+
+        function renderCategories() {
+            categoriesListContainer.innerHTML = '';
+            menuData.forEach(cat => {
+                const card = document.createElement('div');
+                card.onclick = () => openCategory(cat.id);
+                card.className = "cursor-pointer transition transform active:scale-[0.98]";
+                card.innerHTML = `
+                    <div class="relative h-44 rounded-xl overflow-hidden shadow-xs flex items-end p-5 transition bg-white">
+                        <img src="${cat.image}" alt="${cat.title}" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent"></div>
+                        <div class="relative z-10 w-full flex justify-between items-end">
+                            <div>
+                                <h3 class="text-2xl font-extrabold text-white drop-shadow-md tracking-tight">${cat.title}</h3>
+                                <p class="text-xs text-slate-200 mt-0.5 line-clamp-1">${cat.description}</p>
+                            </div>
+                            <div class="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                categoriesListContainer.appendChild(card);
+            });
+        }
+
+        function openCategory(catId) {
+            const category = menuData.find(c => c.id === catId);
+            if (!category) return;
+
+            if (currentCategoryId !== catId) {
+                detailCategoryTitle.textContent = category.title;
+                itemsListContainer.innerHTML = '';
+
+                category.items.forEach(item => {
+                    const sel = selectedItems[item.id];
+                    const qty = sel ? sel.quantity : 0;
+                    const isSelected = qty > 0;
+
+                    const itemCard = document.createElement('div');
+                    itemCard.id = `item-card-${item.id}`;
+                    itemCard.className = `bg-white rounded-xl p-3 flex flex-col gap-2.5 transition-all ${isSelected ? 'shadow-md ring-1 ring-emerald-500/40 bg-emerald-50/10' : 'shadow-xs'}`;
+                    
+                    itemCard.innerHTML = `
+                        <div class="flex gap-3.5 items-center">
+                            <div class="w-24 h-24 rounded-full overflow-hidden bg-slate-100 flex-shrink-0 cursor-pointer relative shadow-xs" onclick="openLightbox(${item.id}, '${catId}')">
+                                <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between py-0.5">
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-slate-900 leading-snug tracking-tight">${item.title}</h3>
+                                    <div class="text-[11px] text-slate-600 leading-relaxed mt-1 cursor-pointer" onclick="openLightbox(${item.id}, '${catId}')">
+                                        <p class="line-clamp-2">${item.description}</p>
+                                        <span class="text-blue-600 font-bold underline inline-block mt-0.5 text-[10px]">más</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-4 pt-1">
+                            <div class="flex items-center gap-3">
+                                <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', -1)" class="w-7 h-7 flex items-center justify-center text-slate-800 font-extrabold cursor-pointer text-sm">−</button>
+                                <span id="card-qty-${item.id}" class="text-xs font-extrabold text-slate-900">${qty}</span>
+                                <button onclick="event.stopPropagation(); changeQuantity(${item.id}, '${catId}', 1)" class="w-7 h-7 flex items-center justify-center text-slate-800 font-extrabold cursor-pointer text-sm">+</button>
+                            </div>
+                            <div class="text-sm font-extrabold text-emerald-700">${item.price}</div>
+                        </div>
+                    `;
+                    itemsListContainer.appendChild(itemCard);
+                });
+
+                currentCategoryId = catId;
+                screenItems.scrollTop = categoryScrollPositions[catId] || 0;
+            } else {
+                screenItems.scrollTop = categoryScrollPositions[catId] || 0;
+            }
+
+            screenHome.classList.remove('screen-active', 'screen-left');
+            screenHome.classList.add('screen-left');
+            screenItems.classList.remove('screen-right', 'screen-active');
+            screenItems.classList.add('screen-active');
+        }
+
+        function changeQuantity(itemId, catId, delta) {
+            const category = menuData.find(c => c.id === catId);
+            const item = category.items.find(i => i.id === itemId);
+
+            if (!selectedItems[itemId]) {
+                if (delta > 0) selectedItems[itemId] = { itemData: item, catId: catId, quantity: delta, isStriked: false };
+            } else {
+                selectedItems[itemId].quantity += delta;
+                if (selectedItems[itemId].quantity <= 0) delete selectedItems[itemId];
+            }
+
+            savePedidoToLocalStorage();
+            updateItemCardUI(itemId);
+            updateComandaUI();
+            if (currentLightboxItemId === itemId) updateLightboxQuantityUI(itemId);
+        }
+
+        function changeLightboxQuantity(delta) {
+            if (currentLightboxItemId !== null && currentCategoryId !== null) {
+                changeQuantity(currentLightboxItemId, currentCategoryId, delta);
+            }
+        }
+
+        function updateLightboxQuantityUI(itemId) {
+            const sel = selectedItems[itemId];
+            const qty = sel ? sel.quantity : 0;
+            const lightboxQtySpan = document.getElementById('lightbox-qty');
+            if (lightboxQtySpan) lightboxQtySpan.textContent = qty;
+        }
+
+        function toggleStrikeItem(itemId) {
+            if (selectedItems[itemId]) {
+                selectedItems[itemId].isStriked = !selectedItems[itemId].isStriked;
+                savePedidoToLocalStorage();
+                updateComandaUI();
+            }
+        }
+
+        function updateItemCardUI(itemId) {
+            const card = document.getElementById(`item-card-${itemId}`);
+            const qtySpan = document.getElementById(`card-qty-${itemId}`);
+            const sel = selectedItems[itemId];
+            const qty = sel ? sel.quantity : 0;
+            const isSelected = qty > 0;
+
+            if (qtySpan) qtySpan.textContent = qty;
+            if (card) {
+                card.className = `bg-white rounded-xl p-3 flex flex-col gap-2.5 transition-all ${isSelected ? 'shadow-md ring-1 ring-emerald-500/40 bg-emerald-50/10' : 'shadow-xs'}`;
+            }
+        }
+
+        function updateComandaUI() {
+            const keys = Object.keys(selectedItems);
+            let totalItemsCount = 0;
+            keys.forEach(k => { totalItemsCount += selectedItems[k].quantity; });
+
+            if (totalItemsCount === 0) {
+                comandaBtnText.textContent = 'Pedido vacío';
+                comandaCounter.classList.add('hidden');
+            } else {
+                comandaBtnText.textContent = 'Vea su pedido';
+                comandaCounter.textContent = totalItemsCount;
+                comandaCounter.classList.remove('hidden');
+            }
+
+            comandaItemsList.innerHTML = '';
+            let totalPago = 0;
+
+            if (keys.length === 0) {
+                comandaItemsList.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs font-medium">Tu lista de pedido está vacía.</div>`;
+            } else {
+                const activeList = [], strikedList = [];
+                keys.forEach(id => {
+                    const obj = selectedItems[id];
+                    if (obj.isStriked) strikedList.push({ id, ...obj });
+                    else {
+                        activeList.push({ id, ...obj });
+                        totalPago += (obj.itemData.priceRaw * obj.quantity);
+                    }
+                });
+
+                [...activeList, ...strikedList].forEach(entry => {
+                    const item = entry.itemData, qty = entry.quantity, isStriked = entry.isStriked;
+                    const subtotal = item.priceRaw * qty;
+                    const qtyPrefix = qty > 1 ? `${qty}x` : '';
+
+                    const row = document.createElement('div');
+                    row.className = `flex items-center justify-between py-2 border-b border-slate-100 text-xs transition-opacity ${isStriked ? 'opacity-40 bg-slate-50 px-2 rounded-lg' : ''}`;
+                    row.innerHTML = `
+                        <div class="flex-1 pr-2 flex items-center">
+                            <span class="w-[28px] font-extrabold text-blue-600 flex-shrink-0 ${isStriked ? 'text-slate-400 line-through' : ''}">${qtyPrefix}</span>
+                            <span class="font-bold text-slate-800 ${isStriked ? 'line-through text-slate-500' : ''}">${item.title}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-extrabold ${isStriked ? 'line-through text-slate-400' : 'text-emerald-700'}">$${subtotal.toLocaleString('es-CO')}</span>
+                            <button onclick="toggleStrikeItem(${item.id})" class="text-slate-400 hover:text-rose-500 font-bold px-1.5 py-0.5 cursor-pointer text-xs">✕</button>
+                        </div>
+                    `;
+                    comandaItemsList.appendChild(row);
+                });
+            }
+            comandaTotal.textContent = `$${totalPago.toLocaleString('es-CO')}`;
+        }
+
+        function openLightbox(itemId, catId) {
+            const category = menuData.find(c => c.id === catId);
+            const item = category.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            currentLightboxItemId = itemId;
+            document.getElementById('lightbox-title').textContent = item.title;
+            document.getElementById('lightbox-price').textContent = item.price;
+            document.getElementById('lightbox-desc').textContent = item.description;
+            document.getElementById('lightbox-img').src = item.image;
+            updateLightboxQuantityUI(itemId);
+            document.getElementById('lightbox-modal').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            currentLightboxItemId = null;
+            document.getElementById('lightbox-modal').classList.add('hidden');
+        }
+
+        function toggleComanda() {
+            const isOpen = comandaPanel.classList.toggle('open');
+            comandaBackdrop.classList.toggle('hidden', !isOpen);
+        }
+
+        function goBackToHome() {
+            if (currentCategoryId) categoryScrollPositions[currentCategoryId] = screenItems.scrollTop;
+            screenItems.classList.remove('screen-active');
+            screenItems.classList.add('screen-right');
+            screenHome.classList.remove('screen-left');
+            screenHome.classList.add('screen-active');
+        }
+
+        function openFinalSummary() {
+            const keys = Object.keys(selectedItems);
+            const activeEntries = keys.map(k => selectedItems[k]).filter(obj => !obj.isStriked);
+
+            if (activeEntries.length === 0) {
+                alert('No hay elementos activos en tu pedido.');
+                return;
+            }
+
+            const summaryList = document.getElementById('final-summary-list');
+            const summaryTotal = document.getElementById('final-summary-total');
+            summaryList.innerHTML = '';
+            let total = 0;
+
+            activeEntries.forEach(entry => {
+                const item = entry.itemData, qty = entry.quantity, subtotal = item.priceRaw * qty;
+                total += subtotal;
+                const qtyPrefix = qty > 1 ? `${qty}x` : '';
+                const row = document.createElement('div');
+                row.className = "flex justify-between items-center text-xs py-1.5 border-b border-slate-100/60";
+                row.innerHTML = `
+                    <div class="flex items-center flex-1 pr-2">
+                        <span class="w-[28px] font-extrabold text-blue-600 flex-shrink-0">${qtyPrefix}</span>
+                        <span class="font-bold text-slate-800">${item.title}</span>
+                    </div>
+                    <span class="font-extrabold text-slate-900">$${subtotal.toLocaleString('es-CO')}</span>
+                `;
+                summaryList.appendChild(row);
+            });
+
+            summaryTotal.textContent = `$${total.toLocaleString('es-CO')}`;
+            comandaPanel.classList.remove('open');
+            comandaBackdrop.classList.add('hidden');
+            document.getElementById('final-summary-modal').classList.remove('hidden');
+        }
+
+        function closeFinalSummary() {
+            document.getElementById('final-summary-modal').classList.add('hidden');
+        }
+
+        initApp();
+    </script>
+</body>
+</html>

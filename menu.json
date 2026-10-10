@@ -1,0 +1,30 @@
+{
+  "restaurante": {
+    "nombre": "La Garosa",
+    "ubicacion": "Villa Campestre",
+    "logo": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=200&q=80"
+  },
+  "categorias": [
+    {
+      "id": "fritos",
+      "title": "Fritos",
+      "description": "Crujientes fritos tradicionales recién hechos.",
+      "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80",
+      "items": [
+        { "id": 1, "title": "Empanada de Carne", "priceRaw": 4000, "price": "$4.000", "description": "Empanada de maíz crocante rellena de carne desmechada sazonada con finas hierbas.", "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80" },
+        { "id": 2, "title": "Empanada de Pollo", "priceRaw": 4000, "price": "$4.000", "description": "Masa de maíz frita rellena de pollo jugoso al guiso tradicional de la casa.", "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80" },
+        { "id": 3, "title": "Arepa de Huevo Clásica", "priceRaw": 5500, "price": "$5.500", "description": "Arepa de maíz amarillo frita con huevo entero en su interior.", "image": "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80" }
+      ]
+    },
+    {
+      "id": "bebidas",
+      "title": "Bebidas",
+      "description": "Refrescantes jugos y limonadas.",
+      "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80",
+      "items": [
+        { "id": 21, "title": "Limonada Cerezada", "priceRaw": 9000, "price": "$9.000", "description": "Refrescante limonada natural batida con cerezas.", "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&q=80" },
+        { "id": 22, "title": "Limonada de Coco", "priceRaw": 11000, "price": "$11.000", "description": "Limonada frapeada con crema de coco natural.", "image": "https://images.unsplash.com/photo-1536935338788-846bb9981813?auto=format&fit=crop&w=800&q=80" }
+      ]
+    }
+  ]
+}
