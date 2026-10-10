@@ -74,13 +74,13 @@
 
         <div id="comanda-backdrop" onclick="toggleComanda()" class="absolute inset-0 z-40 bg-slate-900/30 backdrop-blur-sm hidden pointer-events-auto"></div>
 
-       <div id="comanda-trigger-container" class="absolute bottom-6 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none">
-            <button onclick="toggleComanda()" id="comanda-btn" class="pointer-events-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 transition transform active:scale-95">
-                <div id="comanda-counter" class="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hidden">0</div>
-                <span id="comanda-btn-text">Pedido vacío</span>
-            </button>
-        </div>
-
+<!-- Añadimos 'hidden' para que comience oculto -->
+<div id="comanda-trigger-container" class="absolute bottom-6 left-0 right-0 z-40 px-4 flex justify-center pointer-events-none hidden">
+    <button onclick="toggleComanda()" id="comanda-btn" class="pointer-events-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-5 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 transition transform active:scale-95">
+        <div id="comanda-counter" class="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] hidden">0</div>
+        <span id="comanda-btn-text">Pedido vacío</span>
+    </button>
+</div>
         <div id="comanda-panel" class="absolute bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 rounded-t-2xl shadow-2xl max-h-[50vh] flex flex-col">
             <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-2xl">
                 <div class="flex items-center gap-3">
@@ -97,7 +97,7 @@
                     <span class="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">SU PAGO</span>
                     <span class="text-base font-extrabold text-slate-900" id="comanda-total">$0</span>
                 </div>
-                <button onclick="openFinalSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-xs cursor-pointer transition">Ver PEDIDO</button>
+                <button onclick="openFinalSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow-xs cursor-pointer transition">Resumen Final</button>
             </div>
         </div>
 
@@ -233,23 +233,45 @@
 function resetPedido() {
     if (Object.keys(selectedItems).length > 0 && !confirm('¿Deseas borrar los elementos actuales y comenzar un nuevo pedido?')) return;
     localStorage.removeItem('vistacarta_pedido');
+    
+    // 1. Recogemos todas las claves que existían antes de vaciar para limpiar sus tarjetas visualmente
+    const previousKeys = Object.keys(selectedItems);
+    
+    // 2. Vaciamos el objeto de selección principal
     selectedItems = {};
     
-    // Actualizamos la UI de la comanda para dejarla vacía
+    // 3. Forzamos a cero y quitamos el estilo activo de todas las tarjetas que estaban pintadas en el DOM
+    previousKeys.forEach(itemId => {
+        const qtySpan = document.getElementById(`card-qty-${itemId}`);
+        const card = document.getElementById(`item-card-${itemId}`);
+        if (qtySpan) qtySpan.textContent = '0';
+        if (card) {
+            card.className = "bg-white rounded-xl p-3 flex flex-col gap-2.5 transition-all shadow-xs";
+        }
+    });
+
+    // Por seguridad, limpiamos también cualquier otro contador visible en pantalla que haya quedado en el DOM
+    document.querySelectorAll('[id^="card-qty-"]').forEach(span => {
+        span.textContent = '0';
+    });
+    document.querySelectorAll('[id^="item-card-"]').forEach(card => {
+        card.className = "bg-white rounded-xl p-3 flex flex-col gap-2.5 transition-all shadow-xs";
+    });
+
+    // 4. Actualizamos la interfaz de la comanda (ocultará el botón flotante)
     updateComandaUI();
     
-    // Cerramos paneles y modales abiertos
+    // 5. Cerramos modales y paneles abiertos
     comandaPanel.classList.remove('open');
     comandaBackdrop.classList.add('hidden');
     document.getElementById('final-summary-modal').classList.add('hidden');
     
-    // Forzamos el regreso a la pantalla principal de categorías
-    // Esto asegura que al volver a entrar a cualquier categoría, los contadores empiecen en 0
+    // 6. Si estábamos dentro de una categoría, volvemos a la pantalla principal de forma limpia
     if (typeof goBackToHome === 'function' && screenItems.classList.contains('screen-active')) {
         goBackToHome();
     }
     
-    // Reseteamos el scroll de la página principal
+    // 7. Regresar el scroll suavemente al inicio
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -390,58 +412,65 @@ function resetPedido() {
             }
         }
 
-        function updateComandaUI() {
-            const keys = Object.keys(selectedItems);
-            let totalItemsCount = 0;
-            keys.forEach(k => { totalItemsCount += selectedItems[k].quantity; });
+function updateComandaUI() {
+    const keys = Object.keys(selectedItems);
+    let totalItemsCount = 0;
+    keys.forEach(k => { totalItemsCount += selectedItems[k].quantity; });
 
-            if (totalItemsCount === 0) {
-                comandaBtnText.textContent = 'Pedido vacío';
-                comandaCounter.classList.add('hidden');
-            } else {
-                comandaBtnText.textContent = 'Vea su pedido';
-                comandaCounter.textContent = totalItemsCount;
-                comandaCounter.classList.remove('hidden');
+    // Referencia al contenedor flotante del botón
+    const triggerContainer = document.getElementById('comanda-trigger-container');
+
+    if (totalItemsCount === 0) {
+        // Si no hay nada seleccionado, ocultamos completamente el botón flotante
+        triggerContainer.classList.add('hidden');
+        comandaCounter.classList.add('hidden');
+    } else {
+        // Si hay productos, mostramos el botón flotante y actualizamos el contador
+        triggerContainer.classList.remove('hidden');
+        comandaBtnText.textContent = 'Mi Pedido'; // En lugar de "Vea su pedido"
+        comandaCounter.textContent = totalItemsCount;
+        comandaCounter.classList.remove('hidden');
+    }
+
+    comandaItemsList.innerHTML = '';
+    let totalPago = 0;
+
+    if (keys.length === 0) {
+        comandaItemsList.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs font-medium">Tu lista de pedido está vacía.</div>`;
+    } else {
+        const activeList = [], strikedList = [];
+        keys.forEach(id => {
+            const obj = selectedItems[id];
+            if (obj.isStriked) strikedList.push({ id, ...obj });
+            else {
+                activeList.push({ id, ...obj });
+                totalPago += (obj.itemData.priceRaw * obj.quantity);
             }
+        });
 
-            comandaItemsList.innerHTML = '';
-            let totalPago = 0;
+        [...activeList, ...strikedList].forEach(entry => {
+            const item = entry.itemData, qty = entry.quantity, isStriked = entry.isStriked;
+            const subtotal = item.priceRaw * qty;
+            const qtyPrefix = qty > 1 ? `${qty}x` : '';
 
-            if (keys.length === 0) {
-                comandaItemsList.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs font-medium">Tu lista de pedido está vacía.</div>`;
-            } else {
-                const activeList = [], strikedList = [];
-                keys.forEach(id => {
-                    const obj = selectedItems[id];
-                    if (obj.isStriked) strikedList.push({ id, ...obj });
-                    else {
-                        activeList.push({ id, ...obj });
-                        totalPago += (obj.itemData.priceRaw * obj.quantity);
-                    }
-                });
+            const row = document.createElement('div');
+            row.className = `flex items-center justify-between py-2 border-b border-slate-100 text-xs transition-opacity ${isStriked ? 'opacity-40 bg-slate-50 px-2 rounded-lg' : ''}`;
+            row.innerHTML = `
+                <div class="flex-1 pr-2 flex items-center">
+                    <span class="w-[28px] font-extrabold text-blue-600 flex-shrink-0 ${isStriked ? 'text-slate-400 line-through' : ''}">${qtyPrefix}</span>
+                    <span class="font-bold text-slate-800 ${isStriked ? 'line-through text-slate-500' : ''}">${item.title}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-extrabold ${isStriked ? 'line-through text-slate-400' : 'text-emerald-700'}">$${subtotal.toLocaleString('es-CO')}</span>
+                    <button onclick="toggleStrikeItem(${item.id})" class="text-slate-400 hover:text-rose-500 font-bold px-1.5 py-0.5 cursor-pointer text-xs">✕</button>
+                </div>
+            `;
+            comandaItemsList.appendChild(row);
+        });
+    }
+    comandaTotal.textContent = `$${totalPago.toLocaleString('es-CO')}`;
+}
 
-                [...activeList, ...strikedList].forEach(entry => {
-                    const item = entry.itemData, qty = entry.quantity, isStriked = entry.isStriked;
-                    const subtotal = item.priceRaw * qty;
-                    const qtyPrefix = qty > 1 ? `${qty}x` : '';
-
-                    const row = document.createElement('div');
-                    row.className = `flex items-center justify-between py-2 border-b border-slate-100 text-xs transition-opacity ${isStriked ? 'opacity-40 bg-slate-50 px-2 rounded-lg' : ''}`;
-                    row.innerHTML = `
-                        <div class="flex-1 pr-2 flex items-center">
-                            <span class="w-[28px] font-extrabold text-blue-600 flex-shrink-0 ${isStriked ? 'text-slate-400 line-through' : ''}">${qtyPrefix}</span>
-                            <span class="font-bold text-slate-800 ${isStriked ? 'line-through text-slate-500' : ''}">${item.title}</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="font-extrabold ${isStriked ? 'line-through text-slate-400' : 'text-emerald-700'}">$${subtotal.toLocaleString('es-CO')}</span>
-                            <button onclick="toggleStrikeItem(${item.id})" class="text-slate-400 hover:text-rose-500 font-bold px-1.5 py-0.5 cursor-pointer text-xs">✕</button>
-                        </div>
-                    `;
-                    comandaItemsList.appendChild(row);
-                });
-            }
-            comandaTotal.textContent = `$${totalPago.toLocaleString('es-CO')}`;
-        }
 
         function openLightbox(itemId, catId) {
             const category = menuData.find(c => c.id === catId);
@@ -512,7 +541,22 @@ function resetPedido() {
         }
 
         function closeFinalSummary() {
+            // 1. Ocultamos el modal de resumen final
             document.getElementById('final-summary-modal').classList.add('hidden');
+            
+            // 2. Aseguramos que la UI de la comanda esté actualizada
+            updateComandaUI();
+            
+            // 3. Abrimos automáticamente el panel de la comanda (lista temporal)
+            const comandaPanel = document.getElementById('comanda-panel');
+            const comandaBackdrop = document.getElementById('comanda-backdrop'); // O el elemento de fondo oscuro que utilices
+            
+            if (comandaPanel) {
+                comandaPanel.classList.add('open');
+            }
+            if (comandaBackdrop) {
+                comandaBackdrop.classList.remove('hidden');
+            }
         }
 
         initApp();
